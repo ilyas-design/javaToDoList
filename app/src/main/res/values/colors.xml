@@ -13,7 +13,22 @@
     <color name="brand_yellow">#FFD23F</color>
     <color name="brand_dark_orange">#E55A2B</color>
     <color name="brand_light_orange">#FF8C42</color>
+    
+    <!-- Background Colors -->
     <color name="background_light">#FFF8F5</color>
-    <color name="text_primary">#2C2C2C</color>
+    <color name="gradient_start">#FF6B35</color>
+    <color name="gradient_middle">#FF8C42</color>
+    <color name="gradient_end">#FFD23F</color>
+    
+    <!-- Text Colors -->
+    <color name="text_primary">#000000</color>
     <color name="text_secondary">#666666</color>
+    <color name="intro_text_color">#999999</color>
+    <color name="button_text">#FFFFFF</color>
+    <color name="button_background">#333333</color>
+    
+    <!-- Logo Colors -->
+    <color name="logo_orange">#FF6B35</color>
+    <color name="logo_yellow">#FFD23F</color>
+    <color name="logo_dark_orange">#E55A2B</color>
 </resources>

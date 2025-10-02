@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Smart Tasks</string>
-    <string name="welcome_title">Welcome to Smart Tasks</string>
-    <string name="welcome_subtitle">Your intelligent task management companion</string>
-    <string name="get_started">Get Started</string>
-    <string name="welcome_description">Organize your tasks efficiently with our smart features and intuitive interface.</string>
+    <string name="app_name">SMART TASKS</string>
+    <string name="intro_text">Intro</string>
+    <string name="main_slogan">Organisez mieux,\naccomplissez plus.</string>
+    <string name="get_started">Commencer</string>
 </resources>
