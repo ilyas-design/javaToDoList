@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- Base application theme. -->
+    <style name="Theme.SmartTasks" parent="Theme.Material3.DayNight">
+        <!-- Primary brand color. -->
+        <item name="colorPrimary">@color/brand_orange</item>
+        <item name="colorPrimaryVariant">@color/brand_dark_orange</item>
+        <item name="colorOnPrimary">@color/white</item>
+        <!-- Secondary brand color. -->
+        <item name="colorSecondary">@color/brand_yellow</item>
+        <item name="colorSecondaryVariant">@color/brand_light_orange</item>
+        <item name="colorOnSecondary">@color/white</item>
+        <!-- Status bar color. -->
+        <item name="android:statusBarColor" tools:targetApi="l">@color/brand_orange</item>
+        <!-- Background color -->
+        <item name="android:windowBackground">@color/background_light</item>
+    </style>
+</resources>
