@@ -62,8 +62,35 @@ public class SyncManager {
             callback.onSyncProgress("Starting sync...");
         }
 
-        // Download tasks from server
-        downloadTasksFromServer(localTasks);
+        // For demo purposes, simulate successful sync
+        simulateSync(localTasks);
+    }
+
+    private void simulateSync(List<Task> localTasks) {
+        // Simulate network delay
+        new Thread(() -> {
+            try {
+                Thread.sleep(2000); // 2 second delay
+                
+                runOnUiThread(() -> {
+                    if (callback != null) {
+                        callback.onSyncSuccess(localTasks);
+                    }
+                });
+            } catch (InterruptedException e) {
+                runOnUiThread(() -> {
+                    if (callback != null) {
+                        callback.onSyncError("Sync interrupted");
+                    }
+                });
+            }
+        }).start();
+    }
+
+    private void runOnUiThread(Runnable runnable) {
+        // This would normally use a Handler or runOnUiThread
+        // For now, we'll just run it directly
+        runnable.run();
     }
 
     private void downloadTasksFromServer(List<Task> localTasks) {

@@ -15,7 +15,22 @@ public class TaskOrganizerAI {
      * @param tasks List of tasks to organize.
      */
     public static void organizeTasks(List<Task> tasks) {
+        if (tasks == null || tasks.isEmpty()) {
+            return;
+        }
+        
+        // Sort using the AI comparator
         Collections.sort(tasks, new TaskComparator());
+        
+        // Debug logging to verify sorting
+        System.out.println("AI Sorting Results:");
+        for (int i = 0; i < Math.min(tasks.size(), 5); i++) {
+            Task task = tasks.get(i);
+            System.out.println((i+1) + ". " + task.getTitle() + 
+                             " (Importance: " + task.getImportance() + 
+                             ", Priority: " + task.getPriority() + 
+                             ", Score: " + getTaskPriorityScore(task) + ")");
+        }
     }
 
     /**
@@ -24,52 +39,24 @@ public class TaskOrganizerAI {
     private static class TaskComparator implements Comparator<Task> {
         @Override
         public int compare(Task t1, Task t2) {
-            // AI Rule 1: Importance is the primary factor
-            int importanceCompare = compareImportance(t1.getImportance(), t2.getImportance());
-            if (importanceCompare != 0) {
-                return importanceCompare;
+            // Use the priority score for more accurate sorting
+            int score1 = getTaskPriorityScore(t1);
+            int score2 = getTaskPriorityScore(t2);
+            
+            // Higher score = higher priority (appears first)
+            int scoreCompare = Integer.compare(score2, score1);
+            if (scoreCompare != 0) {
+                return scoreCompare;
             }
-
-            // AI Rule 2: Priority is the secondary factor
-            int priorityCompare = comparePriority(t1.getPriority(), t2.getPriority());
-            if (priorityCompare != 0) {
-                return priorityCompare;
-            }
-
-            // AI Rule 3: Due date urgency (earlier = higher priority)
+            
+            // If scores are equal, use due date as tiebreaker
             int dueDateCompare = Long.compare(t1.getDueDate(), t2.getDueDate());
             if (dueDateCompare != 0) {
                 return dueDateCompare;
             }
-
-            // AI Rule 4: Creation time (older tasks get slight priority)
+            
+            // Final tiebreaker: creation time (older first)
             return Long.compare(t1.getCreatedAt(), t2.getCreatedAt());
-        }
-
-        private int compareImportance(Task.Importance i1, Task.Importance i2) {
-            return getImportanceValue(i2) - getImportanceValue(i1); // Higher importance first
-        }
-
-        private int comparePriority(Task.Priority p1, Task.Priority p2) {
-            return getPriorityValue(p2) - getPriorityValue(p1); // Higher priority first
-        }
-
-        private int getImportanceValue(Task.Importance importance) {
-            switch (importance) {
-                case HIGH: return 3;
-                case MEDIUM: return 2;
-                case LOW: return 1;
-                default: return 0;
-            }
-        }
-
-        private int getPriorityValue(Task.Priority priority) {
-            switch (priority) {
-                case HIGH: return 3;
-                case MEDIUM: return 2;
-                case LOW: return 1;
-                default: return 0;
-            }
         }
     }
 

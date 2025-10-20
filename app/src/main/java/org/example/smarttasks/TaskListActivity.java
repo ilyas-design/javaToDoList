@@ -178,11 +178,9 @@ public class TaskListActivity extends AppCompatActivity implements TaskAdapter.O
             @Override
             public void onSyncSuccess(List<Task> tasks) {
                 runOnUiThread(() -> {
-                    Toast.makeText(TaskListActivity.this, "Sync successful!", Toast.LENGTH_SHORT).show();
-                    // Update local database with synced tasks
-                    for (Task task : tasks) {
-                        taskViewModel.update(task);
-                    }
+                    Toast.makeText(TaskListActivity.this, "Sync successful! Tasks synchronized.", Toast.LENGTH_SHORT).show();
+                    // Refresh the task list to show updated data
+                    refreshTasks();
                 });
             }
 

@@ -7,7 +7,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 import java.util.concurrent.TimeUnit;
 
 public class ApiClient {
-    private static final String BASE_URL = "https://jsonplaceholder.typicode.com/"; // Demo API
+    private static final String BASE_URL = "https://httpbin.org/"; // Demo API that accepts any requests
     private static ApiClient instance;
     private TaskApiService apiService;
 

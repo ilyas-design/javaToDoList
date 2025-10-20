@@ -51,11 +51,11 @@ public class Task {
     public void setCreatedAt(long createdAt) { this.createdAt = createdAt; }
 
     public enum Priority {
-        LOW, MEDIUM, HIGH
+        HIGH, MEDIUM, LOW
     }
 
     public enum Importance {
-        LOW, MEDIUM, HIGH
+        HIGH, MEDIUM, LOW
     }
 
     public enum Status {
