@@ -1,5 +1,6 @@
 package org.example.smarttasks;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Toast;
@@ -27,8 +28,8 @@ public class MainActivity extends AppCompatActivity {
         getStartedButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // TODO: Navigate to main task list activity
-                Toast.makeText(MainActivity.this, "Welcome to Smart Tasks!", Toast.LENGTH_SHORT).show();
+                Intent intent = new Intent(MainActivity.this, TaskListActivity.class);
+                startActivity(intent);
             }
         });
     }

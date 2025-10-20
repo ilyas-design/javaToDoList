@@ -4,4 +4,6 @@
     <string name="intro_text">Intro</string>
     <string name="main_slogan">Organisez mieux,\naccomplissez plus.</string>
     <string name="get_started">Commencer</string>
+    <string name="add_task">Add Task</string>
+    <string name="save">Save</string>
 </resources>
