@@ -20,9 +20,12 @@ public interface TaskDao {
     @Delete
     void delete(Task task);
 
-    @Query("SELECT * FROM tasks ORDER BY CASE priority WHEN 'HIGH' THEN 1 WHEN 'MEDIUM' THEN 2 ELSE 3 END, CASE importance WHEN 'HIGH' THEN 1 WHEN 'MEDIUM' THEN 2 ELSE 3 END, dueDate ASC")
+    @Query("SELECT * FROM tasks")
     LiveData<List<Task>> getAllTasks();
 
     @Query("SELECT * FROM tasks WHERE id = :id")
     LiveData<Task> getTaskById(int id);
+
+    @Query("DELETE FROM tasks")
+    void deleteAllTasks();
 }

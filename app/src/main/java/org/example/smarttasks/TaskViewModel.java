@@ -35,4 +35,16 @@ public class TaskViewModel extends AndroidViewModel {
     public LiveData<Task> getTaskById(int id) {
         return repository.getTaskById(id);
     }
+
+    public void syncTasks(List<Task> localTasks) {
+        repository.syncTasks(localTasks);
+    }
+
+    public boolean isOnline() {
+        return repository.isOnline();
+    }
+
+    public void populateDummyData() {
+        repository.populateDummyData();
+    }
 }

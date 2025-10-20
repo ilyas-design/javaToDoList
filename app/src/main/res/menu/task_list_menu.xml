@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    
+    <item
+        android:id="@+id/filter_all"
+        android:title="All Tasks"
+        android:icon="@drawable/ic_filter_all"
+        app:showAsAction="ifRoom" />
+    
+    <item
+        android:id="@+id/filter_pending"
+        android:title="Pending"
+        android:icon="@drawable/ic_filter_pending"
+        app:showAsAction="ifRoom" />
+    
+    <item
+        android:id="@+id/filter_completed"
+        android:title="Completed"
+        android:icon="@drawable/ic_filter_completed"
+        app:showAsAction="ifRoom" />
+    
+    <item
+        android:id="@+id/sync_tasks"
+        android:title="Sync"
+        android:icon="@drawable/ic_sync"
+        app:showAsAction="always" />
+    
+    <item
+        android:id="@+id/load_demo_data"
+        android:title="Load Demo Data"
+        android:icon="@drawable/ic_demo"
+        app:showAsAction="never" />
+        
+</menu>

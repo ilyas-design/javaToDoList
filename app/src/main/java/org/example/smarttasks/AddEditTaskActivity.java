@@ -9,9 +9,9 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.Spinner;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -32,8 +32,8 @@ public class AddEditTaskActivity extends AppCompatActivity {
 
     private EditText editTextTitle;
     private EditText editTextDescription;
-    private Spinner spinnerPriority;
-    private Spinner spinnerImportance;
+    private AutoCompleteTextView spinnerPriority;
+    private AutoCompleteTextView spinnerImportance;
     private Button buttonDueDate;
     private long dueDate = System.currentTimeMillis();
 
@@ -48,28 +48,41 @@ public class AddEditTaskActivity extends AppCompatActivity {
         spinnerImportance = findViewById(R.id.spinner_importance);
         buttonDueDate = findViewById(R.id.button_due_date);
 
-        ArrayAdapter<Task.Priority> priorityAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, Task.Priority.values());
-        priorityAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        setupSpinners();
+        setupClickListeners();
+        loadTaskData();
+    }
+
+    private void setupSpinners() {
+        ArrayAdapter<Task.Priority> priorityAdapter = new ArrayAdapter<>(this, android.R.layout.simple_dropdown_item_1line, Task.Priority.values());
         spinnerPriority.setAdapter(priorityAdapter);
 
-        ArrayAdapter<Task.Importance> importanceAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, Task.Importance.values());
-        importanceAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        ArrayAdapter<Task.Importance> importanceAdapter = new ArrayAdapter<>(this, android.R.layout.simple_dropdown_item_1line, Task.Importance.values());
         spinnerImportance.setAdapter(importanceAdapter);
+    }
 
+    private void setupClickListeners() {
         buttonDueDate.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 showDatePicker();
             }
         });
+    }
 
+    private void loadTaskData() {
         Intent intent = getIntent();
         if (intent.hasExtra(EXTRA_ID)) {
             setTitle("Edit Task");
             editTextTitle.setText(intent.getStringExtra(EXTRA_TITLE));
             editTextDescription.setText(intent.getStringExtra(EXTRA_DESCRIPTION));
-            spinnerPriority.setSelection(priorityAdapter.getPosition(Task.Priority.valueOf(intent.getStringExtra(EXTRA_PRIORITY))));
-            spinnerImportance.setSelection(importanceAdapter.getPosition(Task.Importance.valueOf(intent.getStringExtra(EXTRA_IMPORTANCE))));
+            
+            String priorityStr = intent.getStringExtra(EXTRA_PRIORITY);
+            String importanceStr = intent.getStringExtra(EXTRA_IMPORTANCE);
+            
+            spinnerPriority.setText(priorityStr, false);
+            spinnerImportance.setText(importanceStr, false);
+            
             dueDate = intent.getLongExtra(EXTRA_DUE_DATE, System.currentTimeMillis());
             updateDueDateButton();
         } else {
@@ -102,13 +115,27 @@ public class AddEditTaskActivity extends AppCompatActivity {
     private void saveTask() {
         String title = editTextTitle.getText().toString();
         String description = editTextDescription.getText().toString();
-        Task.Priority priority = (Task.Priority) spinnerPriority.getSelectedItem();
-        Task.Importance importance = (Task.Importance) spinnerImportance.getSelectedItem();
+        
+        String priorityStr = spinnerPriority.getText().toString();
+        String importanceStr = spinnerImportance.getText().toString();
 
         if (TextUtils.isEmpty(title)) {
             Toast.makeText(this, "Please enter a title", Toast.LENGTH_SHORT).show();
             return;
         }
+
+        if (TextUtils.isEmpty(priorityStr)) {
+            Toast.makeText(this, "Please select a priority", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        if (TextUtils.isEmpty(importanceStr)) {
+            Toast.makeText(this, "Please select an importance level", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        Task.Priority priority = Task.Priority.valueOf(priorityStr);
+        Task.Importance importance = Task.Importance.valueOf(importanceStr);
 
         Intent data = new Intent();
         data.putExtra(EXTRA_TITLE, title);
@@ -128,19 +155,19 @@ public class AddEditTaskActivity extends AppCompatActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater menuInflater = getMenuInflater();
-        menuInflater.inflate(R.menu.add_task_menu, menu);
+        // Add save button to app bar
+        MenuItem saveItem = menu.add(Menu.NONE, R.id.save_task, Menu.NONE, "Save");
+        saveItem.setIcon(R.drawable.ic_save);
+        saveItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
         return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.save_task:
-                saveTask();
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
+        if (item.getItemId() == R.id.save_task) {
+            saveTask();
+            return true;
         }
+        return super.onOptionsItemSelected(item);
     }
 }
