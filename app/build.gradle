@@ -15,10 +15,27 @@ android {
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
+    // Load Hugging Face token from local.properties or environment
+    def hfProps = new Properties()
+    def lpFile = rootProject.file('local.properties')
+    if (lpFile.exists()) {
+        hfProps.load(new FileInputStream(lpFile))
+    }
+    def HF_API_TOKEN_VALUE = hfProps.getProperty('HF_API_TOKEN', System.getenv('HF_API_TOKEN') ?: "")
+
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+        debug {
+            // debug build
+        }
+        all {
+            buildConfigField 'String', 'HF_API_TOKEN', '"' + HF_API_TOKEN_VALUE + '"'
+            buildConfigField 'String', 'HF_BASE_URL', '"https://api-inference.huggingface.co/"'
+            buildConfigField 'String', 'HF_MODEL_PATH', '"models/facebook/bart-large-mnli"'
+            buildConfigField 'boolean', 'HF_ENABLED', HF_API_TOKEN_VALUE?.trim() ? 'true' : 'false'
         }
     }
     compileOptions {
@@ -27,6 +44,7 @@ android {
     }
     buildFeatures {
         viewBinding true
+        buildConfig true
     }
 }
 

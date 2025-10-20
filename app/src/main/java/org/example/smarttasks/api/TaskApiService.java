@@ -1,31 +1,24 @@
 package org.example.smarttasks.api;
 
 import java.util.List;
+import java.util.Map;
 import retrofit2.Call;
 import retrofit2.http.Body;
-import retrofit2.http.DELETE;
-import retrofit2.http.GET;
+import retrofit2.http.Header;
 import retrofit2.http.POST;
-import retrofit2.http.PUT;
-import retrofit2.http.Path;
 
+/** Hugging Face Inference API subset for zero-shot classification */
 public interface TaskApiService {
-    
-    @GET("tasks")
-    Call<List<TaskApiModel>> getAllTasks();
-    
-    @GET("tasks/{id}")
-    Call<TaskApiModel> getTaskById(@Path("id") int id);
-    
-    @POST("tasks")
-    Call<TaskApiModel> createTask(@Body TaskApiModel task);
-    
-    @PUT("tasks/{id}")
-    Call<TaskApiModel> updateTask(@Path("id") int id, @Body TaskApiModel task);
-    
-    @DELETE("tasks/{id}")
-    Call<Void> deleteTask(@Path("id") int id);
-    
-    @GET("tasks/sync")
-    Call<List<TaskApiModel>> getTasksSince(@Path("timestamp") long timestamp);
+
+    /**
+     * POST /models/{model}
+     * Body example:
+     * { "inputs": "text", "parameters": { "candidate_labels": ["HIGH","MEDIUM","LOW"] } }
+     */
+    @POST("{modelPath}")
+    Call<List<List<Map<String, Object>>>> zeroShot(
+            @Header("Authorization") String bearer,
+            @retrofit2.http.Path("modelPath") String modelPath,
+            @Body Map<String, Object> body
+    );
 }

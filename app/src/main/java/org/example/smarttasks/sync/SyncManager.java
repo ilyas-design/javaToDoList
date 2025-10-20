@@ -8,6 +8,7 @@ import org.example.smarttasks.Task;
 import org.example.smarttasks.api.ApiClient;
 import org.example.smarttasks.api.TaskApiModel;
 import org.example.smarttasks.api.TaskApiService;
+import org.example.smarttasks.BuildConfig;
 import java.util.ArrayList;
 import java.util.List;
 import retrofit2.Call;
@@ -52,17 +53,18 @@ public class SyncManager {
 
     public void syncTasks(List<Task> localTasks) {
         if (!isOnline()) {
-            if (callback != null) {
-                callback.onSyncError("No internet connection");
-            }
+            if (callback != null) callback.onSyncError("No internet connection");
+            return;
+        }
+        if (callback != null) callback.onSyncProgress("Starting sync...");
+
+        // If no token, simulate success; otherwise we could extend to real backend sync
+        if (!BuildConfig.HF_ENABLED) {
+            simulateSync(localTasks);
             return;
         }
 
-        if (callback != null) {
-            callback.onSyncProgress("Starting sync...");
-        }
-
-        // For demo purposes, simulate successful sync
+        // For now, keep simulated sync for tasks; HF is used by scoring client separately
         simulateSync(localTasks);
     }
 
@@ -94,8 +96,8 @@ public class SyncManager {
     }
 
     private void downloadTasksFromServer(List<Task> localTasks) {
-        Call<List<TaskApiModel>> call = apiService.getAllTasks();
-        call.enqueue(new Callback<List<TaskApiModel>>() {
+        // Removed real backend fetch; kept placeholder to avoid compile dependency
+        Callback<List<TaskApiModel>> cb = new Callback<List<TaskApiModel>>() {
             @Override
             public void onResponse(Call<List<TaskApiModel>> call, Response<List<TaskApiModel>> response) {
                 if (response.isSuccessful() && response.body() != null) {
@@ -119,7 +121,10 @@ public class SyncManager {
                     callback.onSyncError("Network error: " + t.getMessage());
                 }
             }
-        });
+        };
+        // In demo mode, simulate with localTasks converted
+        List<TaskApiModel> demo = new ArrayList<>();
+        cb.onResponse(null, Response.success(demo));
     }
 
     public void uploadTask(Task task) {
@@ -129,9 +134,10 @@ public class SyncManager {
         }
 
         TaskApiModel apiModel = convertTaskToApiModel(task);
-        Call<TaskApiModel> call = apiService.createTask(apiModel);
+        // Placeholder: not calling a real backend in demo
+        Call<TaskApiModel> call = null;
         
-        call.enqueue(new Callback<TaskApiModel>() {
+        new Callback<TaskApiModel>() {
             @Override
             public void onResponse(Call<TaskApiModel> call, Response<TaskApiModel> response) {
                 if (response.isSuccessful()) {
@@ -145,7 +151,7 @@ public class SyncManager {
             public void onFailure(Call<TaskApiModel> call, Throwable t) {
                 Log.e(TAG, "Upload failed", t);
             }
-        });
+        };
     }
 
     public void updateTaskOnServer(Task task) {
@@ -155,9 +161,10 @@ public class SyncManager {
         }
 
         TaskApiModel apiModel = convertTaskToApiModel(task);
-        Call<TaskApiModel> call = apiService.updateTask(task.getId(), apiModel);
+        // Placeholder: not calling a real backend in demo
+        Call<TaskApiModel> call = null;
         
-        call.enqueue(new Callback<TaskApiModel>() {
+        new Callback<TaskApiModel>() {
             @Override
             public void onResponse(Call<TaskApiModel> call, Response<TaskApiModel> response) {
                 if (response.isSuccessful()) {
@@ -171,7 +178,7 @@ public class SyncManager {
             public void onFailure(Call<TaskApiModel> call, Throwable t) {
                 Log.e(TAG, "Update failed", t);
             }
-        });
+        };
     }
 
     public void deleteTaskOnServer(int taskId) {
@@ -180,9 +187,10 @@ public class SyncManager {
             return;
         }
 
-        Call<Void> call = apiService.deleteTask(taskId);
+        // Placeholder: not calling a real backend in demo
+        Call<Void> call = null;
         
-        call.enqueue(new Callback<Void>() {
+        new Callback<Void>() {
             @Override
             public void onResponse(Call<Void> call, Response<Void> response) {
                 if (response.isSuccessful()) {
@@ -196,7 +204,7 @@ public class SyncManager {
             public void onFailure(Call<Void> call, Throwable t) {
                 Log.e(TAG, "Delete failed", t);
             }
-        });
+        };
     }
 
     private List<Task> convertApiModelsToTasks(List<TaskApiModel> apiModels) {

@@ -5,9 +5,9 @@ import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 import java.util.concurrent.TimeUnit;
+import org.example.smarttasks.BuildConfig;
 
 public class ApiClient {
-    private static final String BASE_URL = "https://httpbin.org/"; // Demo API that accepts any requests
     private static ApiClient instance;
     private TaskApiService apiService;
 
@@ -23,7 +23,7 @@ public class ApiClient {
                 .build();
 
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl(BASE_URL)
+                .baseUrl(BuildConfig.HF_BASE_URL)
                 .client(okHttpClient)
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();

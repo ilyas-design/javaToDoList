@@ -12,6 +12,7 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import org.example.smarttasks.api.HfClient;
 import org.example.smarttasks.sync.SyncManager;
 
 import java.util.List;
@@ -24,6 +25,7 @@ public class TaskListActivity extends AppCompatActivity implements TaskAdapter.O
     private TaskAdapter adapter;
     private Task.Status currentFilter = Task.Status.PENDING; // Default filter
     private SyncManager syncManager;
+    private HfClient hfClient;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,6 +40,7 @@ public class TaskListActivity extends AppCompatActivity implements TaskAdapter.O
         setupClickListeners();
         setupViewModel();
         setupSyncManager();
+        hfClient = new HfClient();
     }
 
     private void initializeViews() {
@@ -166,9 +169,43 @@ public class TaskListActivity extends AppCompatActivity implements TaskAdapter.O
 
     private void refreshTasks() {
         taskViewModel.getAllTasks().observe(this, tasks -> {
-            TaskOrganizerAI.organizeTasks(tasks);
-            List<Task> filteredTasks = filterTasks(tasks);
-            adapter.setTasks(filteredTasks);
+            // Optionally call HF to get probabilities and annotate description
+            if (org.example.smarttasks.BuildConfig.HF_ENABLED) {
+                for (Task t : tasks) {
+                    final String baseText = t.getTitle() + ": " + t.getDescription();
+                    hfClient.scoreImportanceAndUrgency(baseText, new HfClient.ScoreCallback() {
+                        @Override
+                        public void onScores(Double imp, Double urg) {
+                            if (imp != null && urg != null) {
+                                String cleanDesc = t.getDescription();
+                                if (cleanDesc == null) cleanDesc = "";
+                                // strip previous markers
+                                if (cleanDesc.startsWith("[IMP:")) {
+                                    int second = cleanDesc.indexOf("]", cleanDesc.indexOf("]") + 1);
+                                    if (second > 0 && second + 1 < cleanDesc.length()) {
+                                        cleanDesc = cleanDesc.substring(second + 1).trim();
+                                    }
+                                }
+                                t.setDescription("[IMP:" + String.format(java.util.Locale.US, "%.2f", imp) + "][URG:" + String.format(java.util.Locale.US, "%.2f", urg) + "] " + cleanDesc);
+                            }
+                            TaskOrganizerAI.organizeTasks(tasks);
+                            List<Task> filteredTasks = filterTasks(tasks);
+                            adapter.setTasks(filteredTasks);
+                        }
+
+                        @Override
+                        public void onError(String message) {
+                            TaskOrganizerAI.organizeTasks(tasks);
+                            List<Task> filteredTasks = filterTasks(tasks);
+                            adapter.setTasks(filteredTasks);
+                        }
+                    });
+                }
+            } else {
+                TaskOrganizerAI.organizeTasks(tasks);
+                List<Task> filteredTasks = filterTasks(tasks);
+                adapter.setTasks(filteredTasks);
+            }
         });
     }
 

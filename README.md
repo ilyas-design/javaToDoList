@@ -19,8 +19,9 @@ SmartTasks is a comprehensive task management solution that combines local stora
 - **Database**: Room (SQLite)
 - **UI**: Material Design Components
 - **Networking**: Retrofit2 + OkHttp
+- **Cloud AI**: Hugging Face Inference API (zero-shot classification)
 - **Architecture**: Android Architecture Components
-- **Sync**: Custom REST API integration
+- **Sync**: Simulated sync (offline-first), pluggable backend
 
 ## 🚀 Features
 
@@ -35,6 +36,7 @@ SmartTasks is a comprehensive task management solution that combines local stora
 - 🤖 **Smart Sorting** - Tasks automatically organized by importance, priority, and due date
 - ⚠️ **Urgency Detection** - Tasks due within 3 days marked as "URGENT"
 - 📊 **Priority Scoring** - Advanced algorithm for task prioritization
+- ☁️ **Cloud Boost (optional)** - Blends Hugging Face predictions with local score
 - 🎯 **Visual Indicators** - Color-coded urgency and completion status
 
 ### **Cloud Synchronization**
@@ -63,13 +65,13 @@ app/src/main/
 │   ├── TaskRepository.java            # Data repository
 │   ├── TaskViewModel.java             # ViewModel for UI
 │   ├── TaskAdapter.java               # RecyclerView adapter
-│   ├── TaskOrganizerAI.java           # AI organization logic
+│   ├── TaskOrganizerAI.java           # AI organization logic (local + optional cloud blend)
 │   ├── Converters.java                # Room type converters
-│   ├── TaskOrganizerAI.java           # AI task organization
 │   ├── api/                           # API integration
-│   │   ├── TaskApiService.java        # REST API interface
+│   │   ├── TaskApiService.java        # HF inference interface (zero-shot)
 │   │   ├── TaskApiModel.java          # API data models
-│   │   └── ApiClient.java             # HTTP client setup
+│   │   ├── ApiClient.java             # HTTP client setup (HF base URL)
+│   │   └── HfClient.java              # Lightweight scorer client
 │   └── sync/                          # Synchronization
 │       └── SyncManager.java           # Sync logic and conflict resolution
 ├── res/
@@ -116,20 +118,24 @@ CREATE TABLE tasks (
 
 ### **AI Organization Algorithm**
 ```java
-// Task sorting priority:
-1. Importance (HIGH → MEDIUM → LOW)
-2. Priority (HIGH → MEDIUM → LOW)  
-3. Due Date (earliest first)
-4. Creation Time (older first)
+// Default weighted scoring (importance, priority, due date):
+// map(importance): HIGH=3, MEDIUM=2, LOW=1
+// map(priority):   HIGH=3, MEDIUM=2, LOW=1
+// map(due):        <=3 days (or overdue)=3; <=7=2; <=30=1; else=0
 
-// Priority scoring:
-- High Importance: +30 points
-- Medium Importance: +20 points
-- Low Importance: +10 points
-- High Priority: +20 points
-- Medium Priority: +15 points
-- Low Priority: +10 points
-- Urgency Bonus: +25 points (if due within 3 days)
+// Final score (defaults):
+score = 3*importance + 2*priority + 2*due
+
+// Optional cloud blend (if HF enabled):
+// score += round(0.5*importanceProb*10 + 0.5*urgencyProb*10)
+
+// Sorting:
+// - Higher score first
+// - Tie-breakers: earlier due date, then older creation time
+
+// API:
+TaskOrganizerAI.organizeTasks(tasks); // uses defaults (3,2,2)
+TaskOrganizerAI.organizeTasksWithWeights(tasks, importanceWeight, priorityWeight, dueWeight);
 ```
 
 ## 🛠️ Dependencies
@@ -151,12 +157,25 @@ implementation 'androidx.room:room-runtime:2.5.2'
 annotationProcessor 'androidx.room:room-compiler:2.5.2'
 ```
 
-### **Networking**
+### **Networking & Cloud AI**
 ```gradle
 implementation 'com.squareup.retrofit2:retrofit:2.9.0'
 implementation 'com.squareup.retrofit2:converter-gson:2.9.0'
 implementation 'com.squareup.okhttp3:logging-interceptor:4.9.3'
 implementation 'com.google.code.gson:gson:2.10.1'
+```
+
+Add to local.properties (not committed):
+```
+HF_API_TOKEN=hf_xxxxxxxxxxxxxxxxxxxxxxxxx
+```
+
+Gradle injects BuildConfig fields:
+```
+BuildConfig.HF_ENABLED
+BuildConfig.HF_API_TOKEN
+BuildConfig.HF_BASE_URL = https://api-inference.huggingface.co/
+BuildConfig.HF_MODEL_PATH = models/facebook/bart-large-mnli
 ```
 
 ## 🔐 Security & Privacy
